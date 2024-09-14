@@ -1,6 +1,7 @@
 import argparse
 import json
 import logging
+import sys
 from pathlib import Path
 
 import torch
@@ -10,7 +11,13 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from .vits.lightning import VitsModel
 
 _LOGGER = logging.getLogger(__package__)
+_LOGGER.setLevel(logging.DEBUG)
 
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+_LOGGER.addHandler(handler)
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
@@ -57,7 +64,8 @@ def main():
         num_speakers = int(config["num_speakers"])
         sample_rate = int(config["audio"]["sample_rate"])
 
-    trainer = Trainer.from_argparse_args(args)
+    trainer = Trainer.from_argparse_args(args, strategy='ddp')
+    print(f"Number of GPUs being used: {trainer.num_devices}")
     if args.checkpoint_epochs is not None:
         trainer.callbacks = [ModelCheckpoint(every_n_epochs=args.checkpoint_epochs)]
         _LOGGER.debug(
@@ -88,6 +96,10 @@ def main():
         dataset=[dataset_path],
         **dict_args,
     )
+
+    if torch.cuda.is_available():
+        model = model.cuda()
+    print(f"Is model on CUDA: {next(model.parameters()).is_cuda}")
 
     if args.resume_from_single_speaker_checkpoint:
         assert (

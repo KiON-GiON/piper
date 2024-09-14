@@ -1,4 +1,5 @@
 import logging
+import sys
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
@@ -15,6 +16,12 @@ from .mel_processing import mel_spectrogram_torch, spec_to_mel_torch
 from .models import MultiPeriodDiscriminator, SynthesizerTrn
 
 _LOGGER = logging.getLogger("vits.lightning")
+
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+_LOGGER.addHandler(handler)
 
 
 class VitsModel(pl.LightningModule):
@@ -68,7 +75,7 @@ class VitsModel(pl.LightningModule):
         c_mel: int = 45,
         c_kl: float = 1.0,
         grad_clip: Optional[float] = None,
-        num_workers: int = 1,
+        num_workers: int = 4,
         seed: int = 1234,
         num_test_examples: int = 5,
         validation_split: float = 0.1,
