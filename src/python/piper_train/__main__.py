@@ -201,7 +201,7 @@ def main():
     lr_monitor_callback = LearningRateMonitor(logging_interval='epoch')
     callbacks.append(lr_monitor_callback)
 
-    trainer = Trainer(**filtered_args, callbacks=callbacks, strategy='ddp')
+    trainer = Trainer(**filtered_args, callbacks=callbacks, strategy='ddp_find_unused_parameters_true')
 
     dict_args = vars(args)
     if args.quality == "x-low":
