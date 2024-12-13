@@ -86,6 +86,7 @@ class VitsModel(pl.LightningModule):
         validation_split: float = 0.1,
         max_phoneme_ids: Optional[int] = None,
         show_plot = False,
+        plot_save_path = [List[Union[str, Path]]] = None
         **kwargs,
     ):
         super().__init__()
